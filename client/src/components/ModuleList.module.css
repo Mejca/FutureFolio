@@ -1,0 +1,68 @@
+/* client/src/components/ModuleList.module.css */
+.module-list-container {
+    overflow-y: auto;
+    max-height: 70vh;
+  }
+  
+  .module-card {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+  }
+  
+  .module-card.condensed {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .drag-handle {
+    cursor: grab;
+    margin-right: 10px;
+  }
+  
+  .module-details {
+    flex-grow: 1;
+  }
+  
+  .info-button {
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    color: #007bff;
+  }
+  /* client/src/components/ModuleList.module.css */
+.module-card {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 5px;  /* Reduced padding */
+  margin-bottom: 5px;  /* Reduced margin */
+  background-color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.module-card h3 {
+  margin: 0;
+  font-size: 1em;  /* Smaller font size */
+}
+
+.module-card p {
+  margin: 0;
+  font-size: 0.8em;  /* Smaller font size */
+  color: #666;
+}
+
+.module-card .details {
+  margin-left: 10px;  /* Reduced margin */
+}
+
+.module-table th, .module-table td {
+  padding: 5px;  /* Reduced padding */
+}

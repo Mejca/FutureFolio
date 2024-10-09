@@ -1,0 +1,82 @@
+.contextMenu {
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 5px;
+  z-index: 1000;
+}
+
+.contextMenu button {
+  display: block;
+  width: 100%;
+  padding: 5px 10px;
+  margin: 2px 0;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.contextMenu button:hover {
+  background-color: #f0f0f0;
+}
+
+.menuInner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.menuItem {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #f0f0f0;
+  color: #333;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 12px;
+  padding: 5px;
+}
+
+.menuItem:hover {
+  background-color: #e0e0e0;
+  transform: scale(1.1);
+}
+
+.icon {
+  font-size: 20px;
+  margin-bottom: 2px;
+}
+
+.label {
+  font-size: 10px;
+  text-align: center;
+  word-wrap: break-word;
+  max-width: 100%;
+}
+
+.nodeMenu .menuItem {
+  background-color: #007bff;
+  color: white;
+}
+
+.nodeMenu .menuItem:hover {
+  background-color: #0056b3;
+}
+
+.emptySpaceMenu .menuItem {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.emptySpaceMenu .menuItem:hover {
+  background-color: #e0e0e0;
+}

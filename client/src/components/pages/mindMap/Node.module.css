@@ -1,0 +1,56 @@
+.node {
+  cursor: move;
+  transition: all 0.3s ease;
+}
+
+.node.dragging {
+  transition: none;
+  cursor: grabbing;
+}
+
+.node:hover circle {
+  stroke: #000;
+  stroke-width: 2px;
+}
+
+.selected circle {
+  stroke: #000;
+  stroke-width: 2px;
+}
+
+.nodeRect {
+  fill: #4285f4;
+  stroke: none;
+}
+
+.selected .nodeRect {
+  fill: #3367d6;
+}
+
+.node:hover .nodeRect {
+  fill: #5c9cff;
+}
+
+.nodeText {
+  font-family: 'Arial', sans-serif;
+  font-size: 14px;
+  fill: #ffffff;
+  pointer-events: none;
+}
+
+.selected .nodeText {
+  fill: #333333;
+}
+
+.nodeInput {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  text-align: center;
+  font-size: 14px;
+  font-family: 'Arial', sans-serif;
+  outline: none;
+  padding: 5px;
+  box-sizing: border-box;
+}

@@ -1,0 +1,30 @@
+/* src/darkMode.css */
+body.dark-mode {
+    background-color: #1a1a1a;
+    color: #ffffff;
+  }
+  
+  .dark-mode .sidebar {
+    background-color: #2a2a2a;
+  }
+  
+  .dark-mode .moduleCard {
+    background-color: #333333;
+    border-color: #4a4a4a;
+  }
+  
+  .dark-mode .progressBar {
+    background-color: #4a4a4a;
+  }
+  
+  .dark-mode .progressFill {
+    background-color: #6ac259;
+  }
+  
+  .dark-mode .notification {
+    background-color: #333333;
+    color: #ffffff;
+    border-color: #4a4a4a;
+  }
+  
+  /* Add more dark mode styles as needed */

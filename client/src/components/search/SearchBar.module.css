@@ -1,0 +1,81 @@
+/* SearchBar.module.css */
+.searchFilterSection {
+  padding: 20px;
+  width: 100%;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.searchInput {
+  width: 90%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.filterInput {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.filterInput select,
+.creditButtons {
+  flex: 1;
+}
+
+.creditButtons {
+  display: flex;
+  gap: 5px;
+}
+.tableContainer {
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.creditButtons button {
+  flex: 1;
+  padding: 5px;
+  border: 1px solid #4D90E8;
+  background-color: white;
+  color: #4D90E8;
+  cursor: pointer;
+}
+
+.creditButtons button.active {
+  background-color: #4D90E8;
+  color: white;
+}
+
+.moduleTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.moduleTable th,
+.moduleTable td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: left;
+  max-width: 550px; /* Adjust as needed */
+}
+
+.moduleTable th {
+  background-color: #f2f2f2;
+}
+
+.infoButton {
+  background-color: #4D90E8;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}

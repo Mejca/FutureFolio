@@ -1,0 +1,66 @@
+.drop-area {
+  border: 2px dashed red;
+  padding: 20px;
+  margin-bottom: 20px;
+  height: calc(100vh - 40px);
+  width: 100%;
+  overflow-y: auto;
+  position: relative; /* Ensure positioning for absolute elements */
+}
+
+.semesterSection {
+  margin-bottom: 20px;
+  padding-top: 10px; /* Add padding to ensure clear space for titles */
+  position: relative; /* Allow absolute positioning of credit totals */
+}
+
+.credits {
+  position: absolute; /* Position at the top-right corner */
+  top: 5px;
+  right: 10px;
+  font-weight: bold;
+  font-size: 0.9em;
+  color: #333;
+  z-index: 1; /* Ensure it appears above other elements */
+  background-color: #f9f9f9; /* Background to prevent overlap */
+  padding: 5px;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Slight shadow for better visibility */
+}
+
+.moduleCard {
+  border: 1px solid #007bff;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.moduleCard h3 {
+  margin: 0;
+  font-size: 1.2em;
+}
+
+.moduleCard p {
+  margin: 0;
+  font-size: 0.9em;
+  color: #666;
+}
+
+.moduleCard .details {
+  margin-left: 20px;
+}
+
+.removeButton {
+  background-color: #dc3545;
+  border: none;
+  color: white;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+}

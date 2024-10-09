@@ -1,0 +1,90 @@
+/* src/components/Navbar.module.css */
+.navbar {
+  background-color: #4D90E8;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navList {
+  display: flex;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navList li {
+  margin: 0 10px;
+}
+
+.navList a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.navList a:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.navList a.active {
+  background-color: #17C4C4;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navList a:not(.active):hover {
+  background-color: rgba(23, 196, 196, 0.3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.themeToggle {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2em;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+}
+
+.themeToggle:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.darkMode {
+  background-color: #2a2a2a;
+}
+
+.darkMode .navList a {
+  color: #ffffff;
+}
+
+.darkMode .navList a.active {
+  background-color: #17C4C4;
+}
+
+.darkMode .themeToggle {
+  color: #ffffff;
+}
+
+.darkMode .themeToggle:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* SearchBar.module.css */
+/* ... (existing styles) */
+
+.filterButton.active {
+  background-color: #4D90E8;
+  color: white;
+}
+
+.darkMode .filterButton.active {
+  background-color: #4D90E8;
+  color: white;
+}

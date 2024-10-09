@@ -1,0 +1,26 @@
+.link path {
+  fill: none;
+  stroke: #95a5a6;
+  stroke-width: 3px;
+  stroke-linecap: round;
+  transition: all 0.3s ease;
+}
+
+.link polygon {
+  fill: #95a5a6;
+  transition: all 0.3s ease;
+}
+
+.link:hover path {
+  stroke: #7f8c8d;
+  stroke-width: 4px;
+}
+
+.link:hover polygon {
+  fill: #7f8c8d;
+}
+
+.link {
+  stroke: #cccccc;
+  stroke-width: 2px;
+}

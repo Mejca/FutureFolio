@@ -1,0 +1,17 @@
+.darkMode {
+    background-color: #1a1a1a;
+    color: #ffffff;
+  }
+  
+  .darkMode .moduleInfoContainer {
+    background-color: #2a2a2a;
+  }
+  
+  .darkMode .moduleCard {
+    background-color: #333333;
+    border-color: #4a4a4a;
+  }
+  
+  .darkMode .moduleCard h2 {
+    color: #17C4C4;
+  }

@@ -1,97 +1,63 @@
-// Import required modules
 const express = require('express');
-const { MongoClient, ObjectId } = require('mongodb');
-
-// Create Express app
+const { MongoClient } = require('mongodb');
+const cors = require('cors');
 const app = express();
-const port = process.env.PORT || 3000;
-
-// MongoDB Connection URL and Database Name
+const port = process.env.PORT || 3002;
 const url = 'mongodb://localhost:27017';
-const dbName = 'worktree'; // Use the correct database name
-const client = new MongoClient(url, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+const dbName = 'FutureFolio';
+const client = new MongoClient(url);
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  next();
 });
 
-// Connect to MongoDB and start the server
 async function connectDB() {
   try {
     await client.connect();
     console.log("Connected successfully to MongoDB server");
     const db = client.db(dbName);
 
-    // Middleware to add db to request
     app.use((req, res, next) => {
       req.db = db;
       next();
     });
 
-    defineRoutes(); // Setup routes
-    startServer(); // Start listening for requests
+    defineRoutes();
+    startServer();
   } catch (err) {
     console.error('Failed to connect to MongoDB', err);
     process.exit(1);
   }
 }
 
-// Define API endpoints
 function defineRoutes() {
   app.get('/', (req, res) => {
-    res.send('Welcome to the Worktree application!');
+    res.send('Welcome to the FutureFolio application!');
   });
 
-  // List all courses
-  app.get('/api/courses', async (req, res) => {
-    try {
-      const result = await req.db.collection('courses').find({}).toArray();
-      res.json(result);
-    } catch (err) {
-      res.status(500).send('Error fetching courses');
-    }
-  });
-
-  // Get details for a specific course including compulsory modules
-  app.get('/api/courses/:courseId', async (req, res) => {
-    try {
-      const courseId = new ObjectId(req.params.courseId);
-      const course = await req.db.collection('courses').findOne({ _id: courseId });
-      const modules = await req.db.collection('modules').find({ courseId: courseId, isCompulsory: true }).toArray();
-      res.json({ course, compulsoryModules: modules });
-    } catch (err) {
-      res.status(500).send('Error fetching course details');
-    }
-  });
-
-  // List all modules
   app.get('/api/modules', async (req, res) => {
     try {
-      const result = await req.db.collection('modules').find({}).toArray();
-      res.json(result);
-    } catch (err) {
-      res.status(500).send('Error fetching modules');
+      const collection = req.db.collection('MechanicalEngineering');
+      const modules = await collection.find({}).toArray();
+      res.json(modules);
+    } catch (error) {
+      console.error("Error fetching modules:", error);
+      res.status(500).json({ error: 'Internal Server Error' });
     }
   });
 
-  // Get a specific module by ID
-  app.get('/api/modules/:id', async (req, res) => {
-    try {
-      const id = new ObjectId(req.params.id);
-      const module = await req.db.collection('modules').findOne({ _id: id });
-      res.json(module);
-    } catch (err) {
-      res.status(500).send(`Error fetching module with ID ${req.params.id}`);
-    }
-  });
+  // Define other routes here if needed
 }
 
-// Start the server
 function startServer() {
   app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
   });
 
-  // Properly handle SIGINT for graceful shutdown
   process.on('SIGINT', async () => {
     console.log('Closing MongoDB connection...');
     await client.close();
@@ -100,5 +66,10 @@ function startServer() {
   });
 }
 
-// Connect to DB and initialize the app
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err.stack);
+  res.status(500).send('Something went wrong!');
+});
+
 connectDB();

@@ -1,0 +1,8 @@
+/* AddButton.module.css */
+.addButton {
+    cursor: pointer;
+  }
+  
+  .addButton:hover circle {
+    fill: #45a049;
+  }

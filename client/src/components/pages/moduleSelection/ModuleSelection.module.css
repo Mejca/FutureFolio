@@ -1,0 +1,342 @@
+.moduleSelectionContainer {
+  display: flex;
+  height: 100vh;
+}
+.sidebar {
+  width: 55%;  /* This makes the sidebar take up half the screen width */
+  max-width: 900px;  /* This prevents it from getting too wide on large screens */
+  background-color: #f0f0f0;
+  overflow-y: auto;
+  position: relative;
+  transition: width 0.3s ease-in-out;
+}
+
+.sidebar.collapsed {
+  width: 60px;
+}
+
+.clearButton {
+  background-color: #4D90E8;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  float: right;
+  margin-top: -45px;
+  font-size: 0.8em;
+}
+
+.clearButton:hover {
+  background-color: #3a78c9;
+}
+
+.moduleDisplaySection {
+  flex: 1;
+  min-width: 300px;  /* This ensures the display section doesn't get too narrow */
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.toggleButton {
+  position: absolute;
+  top: 17px;
+  right: 15px;
+  background-color: #4D90E8;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.collapsedSidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 50px;
+}
+
+.collapsedSidebar button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #4D90E8;
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+
+.optionsContainer {
+  display: flex;
+  justify-content: space-between;
+}
+
+.optionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.optionArea h2 {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #333;
+}
+
+.optionArea {
+  width: 48%;
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.progressBar {
+  width: 100%;
+  height: 20px;
+  background-color: #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.progressFill {
+  height: 100%;
+  background-color: #4CAF50;
+  transition: width 0.3s ease-in-out;
+}
+
+.progressText {
+  text-align: center;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.semesterSection {
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.semesterSection h3 {
+  margin-top: 0;
+  color: #4D90E8;
+}
+
+.credits {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.editTitleButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-left: 10px;
+  font-size: 0.7em;
+  color: #4D90E8;
+}
+
+.notification {
+  position: fixed;
+  top: 70px; /* Adjust this value based on your navbar height */
+  right: 20px;
+  background-color: #ffffff;
+  color: #333;
+  padding: 10px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  border: 1px solid #007bff;
+}
+
+.conflictHighlight {
+  animation: pulseHighlight 2s;
+}
+
+@keyframes pulseHighlight {
+  0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); }
+}
+
+/* Dark mode styles */
+.darkMode {
+  background-color: #1a1a1a;
+  color: #ffffff;
+}
+
+.darkMode .sidebar {
+  background-color: #2a2a2a;
+}
+
+.darkMode .optionArea {
+  background-color: #333333;
+}
+
+.darkMode .optionArea h2,
+.darkMode .semesterSection h3 {
+  color: #ffffff;
+}
+
+.darkMode .semesterSection {
+  background-color: #2a2a2a;
+}
+
+.darkMode .progressBar {
+  background-color: #4a4a4a;
+}
+
+.darkMode .notification {
+  background-color: #333333;
+  color: #ffffff;
+  border-color: #4a4a4a;
+}
+
+/* Sidebar specific dark mode styles */
+.darkMode .sidebar input,
+.darkMode .sidebar select,
+.darkMode .sidebar button {
+  background-color: #3a3a3a;
+  color: #ffffff;
+  border-color: #4a4a4a;
+}
+
+.darkMode .sidebar button:not(.active) {
+  background-color: #3a3a3a;
+  color: #ffffff;
+}
+
+.darkMode .sidebar button.active {
+  background-color: #17C4C4;
+  color: #ffffff;
+}
+
+/* Table specific dark mode styles */
+.darkMode table {
+  color: #ffffff;
+}
+
+.darkMode th {
+  background-color: #2a2a2a;
+  color: #ffffff;
+}
+
+.darkMode td {
+  background-color: #333333;
+}
+
+.darkMode tr:nth-child(even) {
+  background-color: #2a2a2a;
+}
+
+.moduleCard {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  transition: all 0.3s ease;
+}
+
+.darkMode .moduleCard {
+  background-color: #2a2a2a;
+  border-color: #444;
+  color: #ffffff;
+}
+
+.darkMode .moduleCard h3 {
+  color: #17C4C4;
+}
+.moduleHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.moduleHeader h3 {
+  margin: 0;
+  flex-grow: 1;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 10px;
+}
+
+.removeButton,
+.moreInfoButton {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 0.8em;
+}
+
+.removeButton {
+  background-color: #ff4d4d;
+  color: white;
+}
+
+.moreInfoButton {
+  background-color: #4D90E8;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.removeButton:hover,
+.moreInfoButton:hover {
+  opacity: 0.8;
+}
+
+.darkMode .removeButton {
+  background-color: #8B0000;
+}
+
+.darkMode .moreInfoButton {
+  background-color: #1E5BB0;
+}
+
+.removeButton:hover,
+.moreInfoButton:hover {
+  opacity: 0.8;
+}
+
+.expandedInfo {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.darkMode .expandedInfo {
+  border-top-color: #444;
+}
+
+.expandedInfo h4 {
+  margin: 10px 0 5px 0;
+  color: #4D90E8;
+}
+
+.darkMode .expandedInfo h4 {
+  color: #17C4C4;
+}
+
+.expandedInfo ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.expandedInfo li {
+  margin-bottom: 5px;
+}
