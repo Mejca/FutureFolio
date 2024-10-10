@@ -1,7 +1,8 @@
 import React from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import styles from './Link.module.css';
 
-const Link = ({ link, nodes }) => {
+const Link = ({ link, nodes, darkMode }) => {
   const sourceNode = nodes.find(node => node.id === link.source);
   const targetNode = nodes.find(node => node.id === link.target);
 
@@ -19,10 +20,11 @@ const Link = ({ link, nodes }) => {
 
   return (
     <path
+      key={uuidv4()}
       d={path}
-      className={styles.link}
+      className={`${styles.link} ${darkMode ? styles.darkMode : ''}`}
       fill="none"
-      stroke="#999"
+      stroke={darkMode ? "#999" : "#666"}
       strokeWidth="2"
     />
   );

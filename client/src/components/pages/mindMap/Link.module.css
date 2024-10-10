@@ -21,6 +21,10 @@
 }
 
 .link {
-  stroke: #cccccc;
+  stroke: #666;
   stroke-width: 2px;
+}
+
+.link.darkMode {
+  stroke: #999;
 }

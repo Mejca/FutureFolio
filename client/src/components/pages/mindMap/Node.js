@@ -1,100 +1,75 @@
-import React, { useCallback, useRef, useState, useEffect } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import styles from './Node.module.css';
 
-const Node = ({ node, onDrag, onContextMenu, isEditing, onEditComplete }) => {
+const Node = ({ node, onDrag, onContextMenu }) => {
   const nodeRef = useRef(null);
-  const [editText, setEditText] = useState(node.text);
   const [isDragging, setIsDragging] = useState(false);
-  const dragStartRef = useRef(null);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
   const handleMouseDown = useCallback((e) => {
     if (e.button !== 0) return;
     e.stopPropagation();
-    const svg = nodeRef.current.closest('svg');
-    const svgPoint = svg.createSVGPoint();
-    svgPoint.x = e.clientX;
-    svgPoint.y = e.clientY;
-    const startPoint = svgPoint.matrixTransform(svg.getScreenCTM().inverse());
-    dragStartRef.current = { x: startPoint.x - node.x, y: startPoint.y - node.y };
+    const rect = nodeRef.current.getBoundingClientRect();
+    const offsetX = e.clientX - rect.left;
+    const offsetY = e.clientY - rect.top;
+    setDragOffset({ x: offsetX, y: offsetY });
     setIsDragging(true);
-  }, [node]);
+  }, []);
 
   const handleMouseMove = useCallback((e) => {
     if (!isDragging) return;
     const svg = nodeRef.current.closest('svg');
-    const svgPoint = svg.createSVGPoint();
-    svgPoint.x = e.clientX;
-    svgPoint.y = e.clientY;
-    const cursorPoint = svgPoint.matrixTransform(svg.getScreenCTM().inverse());
-    const newX = cursorPoint.x - dragStartRef.current.x;
-    const newY = cursorPoint.y - dragStartRef.current.y;
+    const pt = svg.createSVGPoint();
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+    const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
+    const newX = svgP.x - dragOffset.x;
+    const newY = svgP.y - dragOffset.y;
     onDrag(node.id, newX, newY);
-  }, [isDragging, node, onDrag]);
+  }, [isDragging, dragOffset, node.id, onDrag]);
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
   }, []);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
     } else {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
     }
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isDragging, handleMouseMove, handleMouseUp]);
-
-  const handleContextMenu = (e) => {
-    e.preventDefault();
-    onContextMenu(e, node.id);
-  };
-
-  const handleEditComplete = () => {
-    onEditComplete(editText);
-  };
 
   return (
     <g
       ref={nodeRef}
-      className={`${styles.node} ${isDragging ? styles.dragging : ''}`}
       transform={`translate(${node.x}, ${node.y})`}
       onMouseDown={handleMouseDown}
-      onContextMenu={handleContextMenu}
+      onContextMenu={(e) => onContextMenu(e, node.id)}
+      className={`${styles.node} ${isDragging ? styles.dragging : ''}`}
     >
       <rect
-        className={styles.nodeRect}
         width={node.width}
         height={node.height}
         rx="5"
         ry="5"
+        className={styles.nodeRect}
       />
-      {isEditing ? (
-        <foreignObject width={node.width} height={node.height}>
-          <input
-            type="text"
-            value={editText}
-            onChange={(e) => setEditText(e.target.value)}
-            onBlur={handleEditComplete}
-            autoFocus
-            className={styles.editInput}
-          />
-        </foreignObject>
-      ) : (
-        <text
-          x={node.width / 2}
-          y={node.height / 2}
-          className={styles.nodeText}
-          textAnchor="middle"
-          dominantBaseline="central"
-        >
-          {node.text}
-        </text>
-      )}
+      <text
+        x={node.width / 2}
+        y={node.height / 2}
+        textAnchor="middle"
+        dominantBaseline="central"
+        className={styles.nodeText}
+      >
+        {node.text}
+      </text>
     </g>
   );
 };

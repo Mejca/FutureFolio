@@ -1,15 +1,24 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import styles from './MindMap.module.css';
+import Node from './Node';
+import Link from './Link';
+import ContextMenuWheel from './ContextMenuWheel';
+import _NodeShape from './NodeShape';  // Prefix with underscore
+import { useTheme } from '../../../contexts/ThemeContext';
+import { v4 as uuidv4 } from 'uuid';
 
 const MindMap = () => {
   const [nodes, setNodes] = useState([]);
   const [links, setLinks] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState(null);
-  const [pan, setPan] = useState([0, 0]);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
   const [contextMenu, setContextMenu] = useState(null);
   const [editingNode, setEditingNode] = useState(null);
   const inputRef = useRef(null);
+  const svgRef = useRef(null);
+  const [scale, setScale] = useState(1);
+  const { darkMode } = useTheme();
 
   // Simulated student profile data
   const studentProfile = {
@@ -29,6 +38,212 @@ const MindMap = () => {
       "AI501": ["CS301", "MATH101"]
     }
   };
+
+  // Define all functions before using them in useCallback
+
+  const deleteNode = useCallback((nodeId) => {
+    setNodes(prevNodes => prevNodes.filter(node => node.id !== nodeId));
+    setLinks(prevLinks => prevLinks.filter(link => link.source !== nodeId && link.target !== nodeId));
+  }, []);
+
+  const addChildNode = useCallback((parentId) => {
+    const parentNode = nodes.find(node => node.id === parentId);
+    if (!parentNode) return;
+
+    const newNode = {
+      id: uuidv4(),
+      text: 'New Node',
+      x: parentNode.x + 150,
+      y: parentNode.y + 50,
+      width: 100,
+      height: 50,
+      color: '#4285f4',
+      level: (parentNode.level || 0) + 1
+    };
+
+    setNodes(prevNodes => [...prevNodes, newNode]);
+    setLinks(prevLinks => [...prevLinks, { source: parentId, target: newNode.id }]);
+  }, [nodes]);
+
+  const changeNodeShape = useCallback((nodeId) => {
+    const shapes = ['rectangle', 'ellipse', 'diamond', 'hexagon', 'octagon'];
+    setNodes(prevNodes => prevNodes.map(node => 
+      node.id === nodeId ? { ...node, shape: shapes[(shapes.indexOf(node.shape) + 1) % shapes.length] } : node
+    ));
+  }, []);
+
+  const changeNodeColor = useCallback((nodeId) => {
+    const colors = ['#4285f4', '#ea4335', '#fbbc05', '#34a853', '#ff6d01'];
+    setNodes(prevNodes => prevNodes.map(node => 
+      node.id === nodeId ? { ...node, color: colors[(colors.indexOf(node.color) + 1) % colors.length] } : node
+    ));
+  }, []);
+
+  const addMediaToNode = useCallback((nodeId) => {
+    // Placeholder for media addition logic
+    console.log(`Add media to node ${nodeId}`);
+  }, []);
+
+  const handleZoom = useCallback((factor) => {
+    setScale(prevScale => prevScale * factor);
+  }, []);
+
+  const centerMap = useCallback(() => {
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    const rootNode = nodes.find(node => node.id === 'root');
+    if (!rootNode) return;
+
+    const dx = centerX - rootNode.x;
+    const dy = centerY - rootNode.y;
+    setNodes(prevNodes => prevNodes.map(node => ({
+      ...node,
+      x: node.x + dx,
+      y: node.y + dy
+    })));
+  }, [nodes]);
+
+  // New feature: Auto-arrange nodes
+  const autoArrangeNodes = useCallback(() => {
+    // Simple auto-arrange logic (you may want to implement a more sophisticated algorithm)
+    const rootNode = nodes.find(node => node.id === 'root');
+    if (!rootNode) return;
+
+    const arrangeRecursive = (node, level, index, maxNodesPerLevel) => {
+      const angle = (index - maxNodesPerLevel / 2 + 0.5) * (2 * Math.PI / maxNodesPerLevel);
+      const radius = level * 200;
+      return {
+        ...node,
+        x: rootNode.x + radius * Math.cos(angle),
+        y: rootNode.y + radius * Math.sin(angle)
+      };
+    };
+
+    const arrangedNodes = nodes.map((node, index) => {
+      if (node.id === 'root') return node;
+      const level = links.filter(link => link.target === node.id).length;
+      const maxNodesPerLevel = Math.max(...nodes.map(n => links.filter(link => link.target === n.id).length));
+      return arrangeRecursive(node, level, index, maxNodesPerLevel);
+    });
+
+    setNodes(arrangedNodes);
+  }, [nodes, links]);
+
+  // New feature: Copy branch
+  const copyBranch = useCallback((nodeId) => {
+    const originalNode = nodes.find(node => node.id === nodeId);
+    if (!originalNode) return;
+
+    const copyRecursive = (originalId, parentId = null) => {
+      const original = nodes.find(node => node.id === originalId);
+      const newId = uuidv4(); // Use uuid to generate a unique ID
+      const newNode = { ...original, id: newId, x: original.x + 50, y: original.y + 50 };
+      
+      setNodes(prevNodes => [...prevNodes, newNode]);
+      if (parentId) {
+        setLinks(prevLinks => [...prevLinks, { source: parentId, target: newId }]);
+      }
+
+      const childLinks = links.filter(link => link.source === originalId);
+      childLinks.forEach(link => copyRecursive(link.target, newId));
+    };
+
+    copyRecursive(nodeId);
+  }, [nodes, links]);
+
+  const deleteBranch = useCallback((nodeId) => {
+    setNodes(prevNodes => {
+      const nodesToDelete = new Set();
+      const deleteRecursive = (id) => {
+        nodesToDelete.add(id);
+        links.filter(link => link.source === id).forEach(link => deleteRecursive(link.target));
+      };
+      deleteRecursive(nodeId);
+      return prevNodes.filter(node => !nodesToDelete.has(node.id));
+    });
+    setLinks(prevLinks => prevLinks.filter(link => !link.source === nodeId && !link.target === nodeId));
+  }, [links]);
+
+  const transplantBranch = useCallback((sourceId, targetId) => {
+    setLinks(prevLinks => {
+      const newLinks = prevLinks.filter(link => link.target !== sourceId);
+      return [...newLinks, { source: targetId, target: sourceId }];
+    });
+  }, []);
+
+  const autoArrange = useCallback(() => {
+    const rootNode = nodes.find(node => node.id === 'root');
+    if (!rootNode) return;
+
+    const arrangeRecursive = (node, level, index, maxNodesPerLevel) => {
+      const angle = (index - maxNodesPerLevel / 2 + 0.5) * (2 * Math.PI / maxNodesPerLevel);
+      const radius = level * 200;
+      return {
+        ...node,
+        x: rootNode.x + radius * Math.cos(angle),
+        y: rootNode.y + radius * Math.sin(angle),
+        level: level
+      };
+    };
+
+    const arrangedNodes = nodes.map((node, index) => {
+      if (node.id === 'root') return { ...node, level: 0 };
+      const level = links.filter(link => link.target === node.id).length;
+      const maxNodesPerLevel = Math.max(...nodes.map(n => links.filter(link => link.target === n.id).length));
+      return arrangeRecursive(node, level, index, maxNodesPerLevel);
+    });
+
+    setNodes(arrangedNodes);
+  }, [nodes, links]);
+
+  const handleNodeContextMenu = useCallback((e, nodeId) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const node = nodes.find(n => n.id === nodeId);
+    if (node) {
+      setContextMenu({
+        x: e.clientX,
+        y: e.clientY,
+        nodeId: nodeId,
+      });
+    }
+  }, [nodes]);
+
+  const handleBackgroundContextMenu = useCallback((e) => {
+    e.preventDefault();
+    setContextMenu({
+      x: e.clientX,
+      y: e.clientY,
+      nodeId: null,
+    });
+  }, []);
+
+  const handleContextMenuAction = useCallback((action, nodeId) => {
+    console.log('Context menu action:', action, 'for node:', nodeId);
+    switch (action) {
+      case 'add':
+        addChildNode(nodeId || 'root');
+        break;
+      case 'edit':
+        setEditingNode(nodeId);
+        break;
+      case 'delete':
+        deleteNode(nodeId);
+        break;
+      case 'copy':
+        // Implement copy functionality
+        break;
+      case 'paste':
+        // Implement paste functionality
+        break;
+      case 'arrange':
+        autoArrange();
+        break;
+      default:
+        console.log('Unhandled action:', action);
+    }
+    setContextMenu(null);
+  }, [addChildNode, deleteNode, autoArrange]);
 
   const addProfileDetails = useCallback((parentId, items, yOffset) => {
     setNodes(prevNodes => {
@@ -85,98 +300,6 @@ const MindMap = () => {
       </div>
     );
   };
-
-  const Node = React.memo(({ data, onAddChild, onEdit, onDrag, onContextMenu }) => {
-    const nodeRef = useRef(null);
-    const [isDragging, setIsDragging] = useState(false);
-    const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-
-    const handleMouseMove = (e) => {
-      if (isDragging) {
-        const dx = e.clientX - dragStart.x;
-        const dy = e.clientY - dragStart.y;
-        onDrag(data.id, 'move', dx, dy);
-        setDragStart({ x: e.clientX, y: e.clientY });
-      }
-    };
-
-    const handleMouseUp = () => {
-      setIsDragging(false);
-    };
-
-    useEffect(() => {
-      if (isDragging) {
-        window.addEventListener('mousemove', handleMouseMove);
-        window.addEventListener('mouseup', handleMouseUp);
-      }
-      return () => {
-        window.removeEventListener('mousemove', handleMouseMove);
-        window.removeEventListener('mouseup', handleMouseUp);
-      };
-    }, [isDragging, dragStart, data.id, onDrag]);
-
-    const handlePointerDown = (event) => {
-      event.stopPropagation();
-      setIsDragging(true);
-      setDragStart({ x: event.clientX, y: event.clientY });
-    };
-
-    return (
-      <g
-        className={styles.node}
-        transform={`translate(${data.x}, ${data.y})`}
-        ref={nodeRef}
-        onMouseDown={handlePointerDown}
-        onContextMenu={(e) => {
-          e.preventDefault();
-          onContextMenu(data.id, e.clientX, e.clientY);
-        }}
-      >
-        <rect
-          width={120}
-          height={40}
-          rx={5}
-          ry={5}
-          fill={data.color || "#f1f1f1"}
-          stroke="#999"
-        />
-        <text
-          x={60}
-          y={20}
-          textAnchor="middle"
-          dominantBaseline="middle"
-          fontSize={14}
-          onDoubleClick={(e) => {
-            e.stopPropagation();
-            onEdit(data.id);
-          }}
-        >
-          {data.text}
-        </text>
-      </g>
-    );
-  });
-
-
-  const Link = React.memo(({ start, end, onContextMenu, isPrereq }) => {
-    const midX = (start.x + end.x) / 2;
-    const midY = (start.y + end.y) / 2;
-
-    return (
-      <path
-        d={`M${start.x},${start.y} Q${midX},${start.y} ${midX},${midY} T${end.x},${end.y}`}
-        fill="none"
-        stroke={isPrereq ? "#ff9800" : "#999"}
-        strokeWidth={isPrereq ? 2 : 4}
-        strokeDasharray={isPrereq ? "5,5" : "none"}
-        onContextMenu={(e) => {
-          e.preventDefault();
-          onContextMenu(e.clientX, e.clientY);
-        }}
-      />
-    );
-  });
-
 
   const Legend = () => (
     <div className={styles.legend}>
@@ -261,8 +384,8 @@ const MindMap = () => {
 
   const handleMouseMove = (e) => {
     if (isDragging) {
-      const dx = e.clientX - dragStart.x;
-      const dy = e.clientY - dragStart.y;
+      const dx = (e.clientX - dragStart.x) / scale;
+      const dy = (e.clientY - dragStart.y) / scale;
       setPan(prevPan => ({ x: prevPan.x + dx, y: prevPan.y + dy }));
       setDragStart({ x: e.clientX, y: e.clientY });
     }
@@ -271,61 +394,6 @@ const MindMap = () => {
   const handleMouseUp = () => {
     setIsDragging(false);
   };
-
-  const handleNodeContextMenu = (nodeId, xCoordinate, yCoordinate) => {
-    const selectedNode = nodes.find((node) => node.id === nodeId);
-    if (!selectedNode) return;
-
-    setContextMenu(
-      <CircularMenu
-        x={xCoordinate}
-        y={yCoordinate}
-        options={[
-          { label: 'Edit', action: () => editNode(nodeId) },
-          { label: 'Delete', action: () => deleteNode(nodeId) },
-        ]}
-        onClose={() => setContextMenu(null)}
-      />
-    );
-  };
-
-  const handleLinkContextMenu = (x, y) => {
-    setContextMenu(
-      <CircularMenu
-        x={x}
-        y={y}
-        options={[
-          { label: 'Change Color', action: () => changeLinkColor() },
-          { label: 'Delete', action: () => deleteLink() },
-        ]}
-        onClose={() => setContextMenu(null)}
-      />
-    );
-  };
-
-  const handleBackgroundContextMenu = (e) => {
-    e.preventDefault();
-    setContextMenu(
-      <CircularMenu
-        x={e.clientX}
-        y={e.clientY}
-        options={[
-          { label: 'Add Node', action: () => addNode('root', 'New Node') },
-          { label: 'Center Map', action: () => centerMap() },
-        ]}
-        onClose={() => setContextMenu(null)}
-      />
-    );
-  };
-
-  const deleteNode = (nodeId) => {
-    const node = nodes.find(node => node.id === nodeId);
-    if (!node) return;
-
-    setNodes(prevNodes => prevNodes.filter(node => node.id !== nodeId));
-    setLinks(prevLinks => prevLinks.filter(link => link.source !== nodeId && link.target !== nodeId));
-  };
-
 
   const changeLinkColor = () => {
     // Implement link color change logic
@@ -337,34 +405,26 @@ const MindMap = () => {
     console.log('Delete link');
   };
 
-  const centerMap = () => {
-    const centerX = window.innerWidth / 2;
-    const centerY = window.innerHeight / 2;
-    const rootNode = nodes.find(node => node.id === 'root');
-    if (!rootNode) return;
-
-    const dx = centerX - rootNode.x;
-    const dy = centerY - rootNode.y;
-    setNodes(prevNodes => prevNodes.map(node => ({
-      ...node,
-      x: node.x + dx,
-      y: node.y + dy
-    })));
-  };
-
-  const [scale, setScale] = useState(1);
+  // Update zoom function to use mousewheel + ctrl
+  const handleZoomWheel = useCallback((e) => {
+    if (e.ctrlKey) {
+      e.preventDefault();
+      const delta = e.deltaY;
+      // ... rest of the zoom logic
+    }
+  }, [/* dependencies */]);
 
   const loadStudentProfile = useCallback(() => {
     const centerX = window.innerWidth / 2;
     const centerY = window.innerHeight / 2;
 
     const profileNodes = [
-      { id: 'root', text: studentProfile.name, x: centerX, y: centerY, color: '#f1c40f' },
-      { id: 'highSchool', text: studentProfile.highSchool, x: centerX - 200, y: centerY - 100, color: '#3498db' },
-      { id: 'past', text: 'Past Endeavors', x: centerX - 100, y: centerY - 200, color: '#2ecc71' },
-      { id: 'current', text: 'Current Endeavors', x: centerX + 100, y: centerY - 200, color: '#e74c3c' },
-      { id: 'future', text: 'Future Endeavors', x: centerX + 200, y: centerY - 100, color: '#9b59b6' },
-      { id: 'modules', text: 'Modules', x: centerX, y: centerY + 200, color: '#f39c12' },
+      { id: uuidv4(), text: studentProfile.name, x: centerX, y: centerY, color: '#f1c40f' },
+      { id: uuidv4(), text: studentProfile.highSchool, x: centerX - 200, y: centerY - 100, color: '#3498db' },
+      { id: uuidv4(), text: 'Past Endeavors', x: centerX - 100, y: centerY - 200, color: '#2ecc71' },
+      { id: uuidv4(), text: 'Current Endeavors', x: centerX + 100, y: centerY - 200, color: '#e74c3c' },
+      { id: uuidv4(), text: 'Future Endeavors', x: centerX + 200, y: centerY - 100, color: '#9b59b6' },
+      { id: uuidv4(), text: 'Modules', x: centerX, y: centerY + 200, color: '#f39c12' },
     ];
 
     const profileLinks = [
@@ -425,56 +485,92 @@ const MindMap = () => {
     loadStudentProfile();
   }, [loadStudentProfile]);
 
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (contextMenu && !e.target.closest(`.${styles.contextMenuWrapper}`)) {
+        setContextMenu(null);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [contextMenu]);
+
+  // Update the initial state to have only one node
+  useEffect(() => {
+    const initialNode = {
+      id: 'root',
+      text: 'Central Idea',
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2,
+      width: 120,
+      height: 60,
+      color: '#4285f4',
+    };
+    setNodes([initialNode]);
+  }, []);
+
+  // Implement node dragging
+  const handleNodeDrag = useCallback((nodeId, newX, newY) => {
+    setNodes(prevNodes =>
+      prevNodes.map(node =>
+        node.id === nodeId ? { ...node, x: newX, y: newY } : node
+      )
+    );
+  }, []);
+
+  // Implement context menu
+  const handleContextMenu = useCallback((e, nodeId) => {
+    e.preventDefault();
+    setContextMenu({
+      x: e.clientX,
+      y: e.clientY,
+      nodeId: nodeId,
+    });
+  }, []);
+
   return (
-    <div className={styles.mindMapContainer}>
+    <div 
+      className={`${styles.mindMapContainer} ${darkMode ? styles.darkMode : ''}`} 
+      onWheel={handleZoomWheel}
+      onContextMenu={(e) => handleContextMenu(e, null)}
+    >
       <svg
+        ref={svgRef}
         className={styles.mindMap}
         width="100%"
         height="100%"
-        viewBox="0 0 1000 1000"
-        preserveAspectRatio="xMinYMin meet"
+        viewBox="0 0 1000 600"
       >
-        {nodes.map((node) => (
-          <Node
-            key={node.id}
-            data={node}
-            onAddChild={addNode}
-            onEdit={editNode}
-            onDrag={handleDrag}
-            onContextMenu={handleNodeContextMenu}
-          />
-        ))}
-        {links.map((link, index) => (
-          <Link
-            key={`${link.source}-${link.target}-${index}`} // Ensure uniqueness by adding index
-            start={nodes.find((node) => node.id === link.source)}
-            end={nodes.find((node) => node.id === link.target)}
-            onContextMenu={handleLinkContextMenu}
-            isPrereq={link.isPrereq}
-          />
-        ))}
+        <g transform={`translate(${pan.x}, ${pan.y}) scale(${scale})`}>
+          {links.map((link, index) => (
+            <Link key={`${link.source}-${link.target}-${index}`} link={link} nodes={nodes} darkMode={darkMode} />
+          ))}
+          {nodes.map((node) => (
+            <Node
+              key={node.id}
+              node={node}
+              onDrag={handleNodeDrag}
+              onContextMenu={handleContextMenu}
+              isEditing={editingNode === node.id}
+              onEditComplete={(newText) => handleEditComplete(node.id, newText)}
+              darkMode={darkMode}
+            />
+          ))}
+        </g>
       </svg>
       {contextMenu && (
-        <CircularMenu
+        <ContextMenuWheel
           x={contextMenu.x}
           y={contextMenu.y}
-          options={contextMenu.options}
-          onClose={() => setContextMenu(null)}
+          nodeId={contextMenu.nodeId}
+          onAction={handleContextMenuAction}
         />
       )}
-      {editingNode && (
-        <input
-          ref={inputRef}
-          type="text"
-          value={nodes.find((node) => node.id === editingNode).text}
-          onChange={(e) => handleEditComplete(editingNode, e.target.value)}
-          onBlur={() => handleEditComplete(editingNode, null)}
-        />
-      )}
-      <Legend />
     </div>
   );
 };
-
 
 export default MindMap;

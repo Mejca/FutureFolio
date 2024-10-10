@@ -3,6 +3,7 @@ import Node from './Node';
 import Link from './Link';
 import AddButton from './AddButton';
 import styles from './MindMapCanvas.module.css';
+import { v4 as uuidv4 } from 'uuid';
 
 const MindMapCanvas = () => {
   const [nodes, setNodes] = useState([]);
@@ -10,9 +11,8 @@ const MindMapCanvas = () => {
   const [selectedNode, setSelectedNode] = useState(null);
 
   useEffect(() => {
-    console.log('Initializing MindMapCanvas');
     const initialNode = {
-      id: 'root',
+      id: uuidv4(), // Use uuid to generate a unique ID
       text: 'Chapter 1: Introduction to AI Safety',
       x: 400,
       y: 300,
@@ -22,15 +22,15 @@ const MindMapCanvas = () => {
     setNodes([initialNode]);
 
     const childNodes = [
-      { id: 'child1', text: '1.1 What is AI Safety?', x: 200, y: 150, width: 150, height: 50 },
-      { id: 'child2', text: '1.2 Key Concepts', x: 600, y: 150, width: 150, height: 50 },
-      { id: 'child3', text: '1.3 Importance of AI Safety', x: 400, y: 450, width: 150, height: 50 },
+      { id: uuidv4(), text: '1.1 What is AI Safety?', x: 200, y: 150, width: 150, height: 50 },
+      { id: uuidv4(), text: '1.2 Key Concepts', x: 600, y: 150, width: 150, height: 50 },
+      { id: uuidv4(), text: '1.3 Importance of AI Safety', x: 400, y: 450, width: 150, height: 50 },
     ];
 
     setNodes(prevNodes => [...prevNodes, ...childNodes]);
 
     const initialLinks = childNodes.map(child => ({
-      source: 'root',
+      source: initialNode.id,
       target: child.id,
     }));
 
@@ -80,7 +80,7 @@ const MindMapCanvas = () => {
       ))}
       {nodes.map(node => (
         <Node
-          key={node.id}
+          key={node.id} // Ensure each node has a unique key
           node={node}
           onClick={handleNodeClick}
           onDrag={handleNodeDrag}

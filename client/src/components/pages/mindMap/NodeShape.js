@@ -38,6 +38,20 @@ const NodeShape = ({ shape, width, height, color }) => {
         [0, height * 0.29]
       ].map(point => point.join(',')).join(' ');
       return <polygon points={octagonPoints} fill={color} />;
+    case 'cloud':
+      return (
+        <path
+          d={`M${width*0.2},${height*0.5} C${width*0.05},${height*0.3} ${width*0.15},${height*0.1} ${width*0.4},${height*0.1} C${width*0.6},${height*0.1} ${width*0.8},${height*0.2} ${width*0.8},${height*0.5} C${width*0.95},${height*0.5} ${width},${height*0.7} ${width*0.85},${height*0.9} C${width*0.7},${height} ${width*0.3},${height} ${width*0.15},${height*0.9} C${width*0},${height*0.7} ${width*0.05},${height*0.5} ${width*0.2},${height*0.5}`}
+          fill={color}
+        />
+      );
+    case 'star':
+      const starPoints = Array.from({length: 10}, (_, i) => {
+        const angle = Math.PI * 2 * i / 10 - Math.PI / 2;
+        const r = i % 2 === 0 ? width / 2 : width / 4;
+        return `${centerX + r * Math.cos(angle)},${centerY + r * Math.sin(angle)}`;
+      }).join(' ');
+      return <polygon points={starPoints} fill={color} />;
     default:
       return <rect width={width} height={height} rx="5" ry="5" fill={color} />;
   }
