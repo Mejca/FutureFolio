@@ -5,14 +5,17 @@
   overflow: hidden;
 }
 
+
 .mindMapContainer.darkMode {
   background-color: #222;
 }
+
 
 .mindMap {
   width: 100%;
   height: 100%;
 }
+
 
 .topRightMenu {
   position: absolute;
@@ -214,3 +217,97 @@
   border-radius: 4px;
 }
 
+.darkMode {
+  background-color: #1a1a1a;
+  color: #ffffff;
+}
+
+.darkMode .mindMap {
+  background-color: #222;
+}
+
+
+.darkMode .topRightMenu button {
+  background-color: #333;
+  color: #fff;
+  border-color: #555;
+}
+
+.darkMode .topRightMenu button:hover {
+  background-color: #444;
+}
+
+.darkMode .legend {
+  background-color: #333;
+  color: #fff;
+  border-color: #555;
+}
+
+.darkMode .legendColor {
+  border: 1px solid #555;
+}
+
+.darkMode .legendLine {
+  background-color: #ff9800;
+}
+
+.darkMode .circularMenu {
+  background: rgba(51, 51, 51, 0.9);
+  border-color: #555;
+}
+
+.darkMode .circularMenuItem {
+  background-color: #444;
+  color: #fff;
+  border-color: #555;
+}
+
+.darkMode .circularMenuItem:hover {
+  background-color: #555;
+}
+
+.darkMode .node rect {
+  fill: #333;
+  stroke: #555;
+}
+
+.darkMode .node:hover rect {
+  fill: #444;
+}
+
+.darkMode .editOverlay input {
+  background-color: #333;
+  color: #fff;
+  border-color: #555;
+}
+
+.darkMode .editOverlay input:focus {
+  border-color: #4D90E8;
+}
+
+.darkMode .contextMenu {
+  background-color: #333;
+  border-color: #555;
+  color: #fff;
+}
+
+.darkMode .contextMenu button {
+  background-color: #444;
+  border-color: #555;
+  color: #fff;
+}
+
+.darkMode .contextMenu button:hover {
+  background-color: #555;
+}
+
+.darkMode .fullscreenButton {
+  background-color: #333;
+  color: #fff;
+}
+
+.darkMode .editInput {
+  background-color: #333;
+  color: #fff;
+  border-color: #555;
+}

@@ -1,10 +1,13 @@
 import React, { useCallback, useRef, useState } from 'react';
 import styles from './Node.module.css';
+import NodeEditBox from './NodeEditBox';
+import NodeShape from './NodeShape';
 
-const Node = ({ node, onDrag, onContextMenu }) => {
+const Node = ({ node, onDrag, onContextMenu, darkMode, children, onUpdate }) => {
   const nodeRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [isEditing, setIsEditing] = useState(false);
 
   const handleMouseDown = useCallback((e) => {
     if (e.button !== 0) return;
@@ -32,6 +35,24 @@ const Node = ({ node, onDrag, onContextMenu }) => {
     setIsDragging(false);
   }, []);
 
+  const handleContextMenu = useCallback((e) => {
+    e.stopPropagation();
+    onContextMenu(e, node.id);
+  }, [onContextMenu, node.id]);
+
+  const handleDoubleClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleEditComplete = (updatedNode) => {
+    onUpdate(node.id, updatedNode);
+    setIsEditing(false);
+  };
+
+  const renderShape = () => {
+    return <NodeShape shape={node.shape} width={node.width} height={node.height} color={node.color} />;
+  };
+
   React.useEffect(() => {
     if (isDragging) {
       document.addEventListener('mousemove', handleMouseMove);
@@ -51,16 +72,10 @@ const Node = ({ node, onDrag, onContextMenu }) => {
       ref={nodeRef}
       transform={`translate(${node.x}, ${node.y})`}
       onMouseDown={handleMouseDown}
-      onContextMenu={(e) => onContextMenu(e, node.id)}
+      onContextMenu={handleContextMenu}
       className={`${styles.node} ${isDragging ? styles.dragging : ''}`}
     >
-      <rect
-        width={node.width}
-        height={node.height}
-        rx="5"
-        ry="5"
-        className={styles.nodeRect}
-      />
+      {children}
       <text
         x={node.width / 2}
         y={node.height / 2}
@@ -70,6 +85,13 @@ const Node = ({ node, onDrag, onContextMenu }) => {
       >
         {node.text}
       </text>
+      {isEditing && (
+        <NodeEditBox
+          node={node}
+          onUpdate={handleEditComplete}
+          onClose={() => setIsEditing(false)}
+        />
+      )}
     </g>
   );
 };

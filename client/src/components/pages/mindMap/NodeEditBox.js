@@ -20,29 +20,41 @@ const NodeEditBox = ({ node, onUpdate, onClose }) => {
   };
 
   const handleUpdate = () => {
-    onUpdate({ text, width: size.width, height: size.height });
+    onUpdate({ ...node, text, width: size.width, height: size.height });
   };
 
-  // ... other functions
+  const handleResize = (e) => {
+    const newWidth = e.clientX - node.x;
+    const newHeight = e.clientY - node.y;
+    setSize({ width: newWidth, height: newHeight });
+  };
 
   return (
     <foreignObject
-      x={node.x}
-      y={node.y}
-      width={size.width}
-      height={size.height}
+      x={-5}
+      y={-5}
+      width={size.width + 10}
+      height={size.height + 10}
     >
-      <div className={styles.editBox} style={{ width: size.width, height: size.height }}>
-        {/* ... toolbar */}
+      <div className={styles.editBox} style={{ width: size.width + 10, height: size.height + 10 }}>
         <textarea
           ref={inputRef}
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={handleKeyDown}
           onBlur={handleUpdate}
-          className={styles.editInput}
+          className={styles.textArea}
         />
-        {/* ... resize handle */}
+        <div
+          className={styles.resizeHandle}
+          onMouseDown={(e) => {
+            e.stopPropagation();
+            document.addEventListener('mousemove', handleResize);
+            document.addEventListener('mouseup', () => {
+              document.removeEventListener('mousemove', handleResize);
+            }, { once: true });
+          }}
+        />
       </div>
     </foreignObject>
   );

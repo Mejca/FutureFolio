@@ -25,6 +25,23 @@
   stroke-width: 2px;
 }
 
+
 .link.darkMode {
   stroke: #999;
+}
+
+.darkMode .link path {
+  stroke: #666;
+}
+
+.darkMode .link:hover path {
+  stroke: #888;
+}
+
+.darkMode .link polygon {
+  fill: #666;
+}
+
+.darkMode .link:hover polygon {
+  fill: #888;
 }
