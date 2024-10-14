@@ -1,13 +1,20 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState, useEffect } from 'react';
 import styles from './Node.module.css';
 import NodeEditBox from './NodeEditBox';
 import NodeShape from './NodeShape';
+import { useMindMap } from './MindMapContext';
 
-const Node = ({ node, onDrag, onContextMenu, darkMode, children, onUpdate }) => {
+const Node = ({ node, onDrag, onContextMenu, onClick, isTransplantTarget, darkMode, isTransplanting, onUpdate }) => {
+  console.log('Node props:', { node, isTransplantTarget, darkMode, isTransplanting });
   const nodeRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const [isEditing, setIsEditing] = useState(false);
+
+  const { setEditingNode } = useMindMap();
+
+  useEffect(() => {
+    console.log('Rendering node:', node); // Debugging log
+  }, [node]);
 
   const handleMouseDown = useCallback((e) => {
     if (e.button !== 0) return;
@@ -36,24 +43,23 @@ const Node = ({ node, onDrag, onContextMenu, darkMode, children, onUpdate }) => 
   }, []);
 
   const handleContextMenu = useCallback((e) => {
+    e.preventDefault();
     e.stopPropagation();
-    onContextMenu(e, node.id);
-  }, [onContextMenu, node.id]);
+    const svg = nodeRef.current.closest('svg');
+    const pt = svg.createSVGPoint();
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+    const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
+    onContextMenu(e, node.id, svgP.x, svgP.y);
+  }, [node.id, onContextMenu]);
 
-  const handleDoubleClick = () => {
-    setIsEditing(true);
-  };
+  const handleDoubleClick = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setEditingNode(node.id);
+  }, [node.id, setEditingNode]);
 
-  const handleEditComplete = (updatedNode) => {
-    onUpdate(node.id, updatedNode);
-    setIsEditing(false);
-  };
-
-  const renderShape = () => {
-    return <NodeShape shape={node.shape} width={node.width} height={node.height} color={node.color} />;
-  };
-
-  React.useEffect(() => {
+  useEffect(() => {
     if (isDragging) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
@@ -73,9 +79,10 @@ const Node = ({ node, onDrag, onContextMenu, darkMode, children, onUpdate }) => 
       transform={`translate(${node.x}, ${node.y})`}
       onMouseDown={handleMouseDown}
       onContextMenu={handleContextMenu}
+      onDoubleClick={handleDoubleClick}
       className={`${styles.node} ${isDragging ? styles.dragging : ''}`}
     >
-      {children}
+      <NodeShape shape={node.shape} width={node.width} height={node.height} color={node.color} />
       <text
         x={node.width / 2}
         y={node.height / 2}
@@ -85,13 +92,6 @@ const Node = ({ node, onDrag, onContextMenu, darkMode, children, onUpdate }) => 
       >
         {node.text}
       </text>
-      {isEditing && (
-        <NodeEditBox
-          node={node}
-          onUpdate={handleEditComplete}
-          onClose={() => setIsEditing(false)}
-        />
-      )}
     </g>
   );
 };

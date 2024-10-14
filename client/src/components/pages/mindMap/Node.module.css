@@ -1,6 +1,6 @@
 .node {
-  cursor: move;
-  transition: all 0.3s ease;
+  cursor: pointer;
+  transition: transform 0.2s;
 }
 
 .node text {
@@ -45,7 +45,7 @@
   user-select: none;
   font-family: 'Arial', sans-serif;
   font-size: 14px;
-  fill: #ffffff;
+  fill: #333;
   pointer-events: none;
 }
 
@@ -163,4 +163,10 @@
 .darkMode .star {
   fill: #ffd700;
   stroke: #ff8c00;
+}
+
+.nodeShape {
+  stroke: #333;
+  stroke-width: 1px;
+  fill-opacity: 0.8;
 }

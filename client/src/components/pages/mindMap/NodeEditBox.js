@@ -24,8 +24,8 @@ const NodeEditBox = ({ node, onUpdate, onClose }) => {
   };
 
   const handleResize = (e) => {
-    const newWidth = e.clientX - node.x;
-    const newHeight = e.clientY - node.y;
+    const newWidth = Math.max(e.clientX - node.x, 50);  // Ensure minimum width
+    const newHeight = Math.max(e.clientY - node.y, 30); // Ensure minimum height
     setSize({ width: newWidth, height: newHeight });
   };
 
